@@ -32,13 +32,19 @@ class $PokemonsTable extends Pokemons with TableInfo<$PokemonsTable, Pokemon> {
   late final GeneratedColumn<String> number = GeneratedColumn<String>(
       'number', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _rarityMeta = const VerificationMeta('rarity');
+  @override
+  late final GeneratedColumn<String> rarity = GeneratedColumn<String>(
+      'rarity', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _avatarMeta = const VerificationMeta('avatar');
   @override
   late final GeneratedColumn<String> avatar = GeneratedColumn<String>(
       'avatar', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns => [id, name, type, number, avatar];
+  List<GeneratedColumn> get $columns =>
+      [id, name, type, number, rarity, avatar];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -70,6 +76,12 @@ class $PokemonsTable extends Pokemons with TableInfo<$PokemonsTable, Pokemon> {
     } else if (isInserting) {
       context.missing(_numberMeta);
     }
+    if (data.containsKey('rarity')) {
+      context.handle(_rarityMeta,
+          rarity.isAcceptableOrUnknown(data['rarity']!, _rarityMeta));
+    } else if (isInserting) {
+      context.missing(_rarityMeta);
+    }
     if (data.containsKey('avatar')) {
       context.handle(_avatarMeta,
           avatar.isAcceptableOrUnknown(data['avatar']!, _avatarMeta));
@@ -93,6 +105,8 @@ class $PokemonsTable extends Pokemons with TableInfo<$PokemonsTable, Pokemon> {
           .read(DriftSqlType.string, data['${effectivePrefix}type'])!,
       number: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}number'])!,
+      rarity: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}rarity'])!,
       avatar: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}avatar'])!,
     );
@@ -109,12 +123,14 @@ class PokemonsCompanion extends UpdateCompanion<Pokemon> {
   final Value<String> name;
   final Value<String> type;
   final Value<String> number;
+  final Value<String> rarity;
   final Value<String> avatar;
   const PokemonsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.type = const Value.absent(),
     this.number = const Value.absent(),
+    this.rarity = const Value.absent(),
     this.avatar = const Value.absent(),
   });
   PokemonsCompanion.insert({
@@ -122,16 +138,19 @@ class PokemonsCompanion extends UpdateCompanion<Pokemon> {
     required String name,
     required String type,
     required String number,
+    required String rarity,
     required String avatar,
   })  : name = Value(name),
         type = Value(type),
         number = Value(number),
+        rarity = Value(rarity),
         avatar = Value(avatar);
   static Insertable<Pokemon> custom({
     Expression<int>? id,
     Expression<String>? name,
     Expression<String>? type,
     Expression<String>? number,
+    Expression<String>? rarity,
     Expression<String>? avatar,
   }) {
     return RawValuesInsertable({
@@ -139,6 +158,7 @@ class PokemonsCompanion extends UpdateCompanion<Pokemon> {
       if (name != null) 'name': name,
       if (type != null) 'type': type,
       if (number != null) 'number': number,
+      if (rarity != null) 'rarity': rarity,
       if (avatar != null) 'avatar': avatar,
     });
   }
@@ -148,12 +168,14 @@ class PokemonsCompanion extends UpdateCompanion<Pokemon> {
       Value<String>? name,
       Value<String>? type,
       Value<String>? number,
+      Value<String>? rarity,
       Value<String>? avatar}) {
     return PokemonsCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
       type: type ?? this.type,
       number: number ?? this.number,
+      rarity: rarity ?? this.rarity,
       avatar: avatar ?? this.avatar,
     );
   }
@@ -173,6 +195,9 @@ class PokemonsCompanion extends UpdateCompanion<Pokemon> {
     if (number.present) {
       map['number'] = Variable<String>(number.value);
     }
+    if (rarity.present) {
+      map['rarity'] = Variable<String>(rarity.value);
+    }
     if (avatar.present) {
       map['avatar'] = Variable<String>(avatar.value);
     }
@@ -186,6 +211,7 @@ class PokemonsCompanion extends UpdateCompanion<Pokemon> {
           ..write('name: $name, ')
           ..write('type: $type, ')
           ..write('number: $number, ')
+          ..write('rarity: $rarity, ')
           ..write('avatar: $avatar')
           ..write(')'))
         .toString();

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pokedex/drift.dart';
 import 'package:pokedex/palette.dart';
+import 'package:pokedex/rarityPokemons.dart';
 import 'package:pokedex/typePokemons.dart';
 import 'package:pokedex/updatePokemon.dart';
 import 'package:pokedex/validate.dart';
@@ -34,7 +35,7 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text('Home Screen'),
+          title: const Text('Pokedex'),
         ),
         body: Center(
           child: ElevatedButton(
@@ -43,7 +44,7 @@ class HomeScreen extends StatelessWidget {
                 builder: (context) => const PokemonsListScreen(),
               ));
             },
-            child: const Text('Start Pokemon List'),
+            child: const Text('Quem é esse Pokemon?'),
           ),
         ));
   }
@@ -81,18 +82,19 @@ class PokemonsListScreenState extends State<PokemonsListScreen> {
               id: Value(pokemon.id),
               name: Value(pokemon.name),
               type: Value(pokemon.type),
+              rarity: Value(pokemon.rarity),
               number: Value(pokemon.number),
               avatar: Value(pokemon.avatar)),
         )
         .then((_) => _loadPokemons());
   }
 
-  Future<void> _addPokemons(
-      String name, String type, String number, String avatar) async {
-    final newStudent = PokemonsCompanion.insert(
-        name: name, type: type, number: number, avatar: avatar);
+  Future<void> _addPokemons(String name, String type, String number,
+      String rarity, String avatar) async {
+    final newPokemon = PokemonsCompanion.insert(
+        name: name, type: type, number: number, rarity: rarity, avatar: avatar);
 
-    await database.insertPokemons(newStudent).then((_) {
+    await database.insertPokemons(newPokemon).then((_) {
       _loadPokemons();
     });
   }
@@ -141,7 +143,7 @@ class PokemonsListScreenState extends State<PokemonsListScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Number: ${_pokemons[i].number}',
+                        'Number: ${_pokemons[i].number} | Rarity: ${_pokemons[i].rarity}',
                       ),
                     ],
                   ),
@@ -188,6 +190,7 @@ class PokemonsListScreenState extends State<PokemonsListScreen> {
           TextEditingController nameController = TextEditingController();
           TextEditingController typeController = TextEditingController();
           TextEditingController numberController = TextEditingController();
+          TextEditingController rarityController = TextEditingController();
           TextEditingController avatarController = TextEditingController();
           showDialog(
             context: context,
@@ -275,6 +278,31 @@ class PokemonsListScreenState extends State<PokemonsListScreen> {
                             ),
                             Padding(
                               padding: const EdgeInsets.symmetric(vertical: 5),
+                              child: DropdownButtonFormField<String>(
+                                decoration: InputDecoration(
+                                    labelText: 'rarity',
+                                    labelStyle: const TextStyle(
+                                        color: ColorPalette.textColor),
+                                    enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(21),
+                                        borderSide: const BorderSide(
+                                            color:
+                                                ColorPalette.borderColorInput,
+                                            width: 2))),
+                                items: rarityPokemons
+                                    .map<DropdownMenuItem<String>>((value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value,
+                                    child: Text(value),
+                                  );
+                                }).toList(),
+                                onChanged: (selectedRarity) {
+                                  rarityController.text = selectedRarity!;
+                                },
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 5),
                               child: TextField(
                                 decoration: InputDecoration(
                                     labelText: 'Avatar',
@@ -308,6 +336,7 @@ class PokemonsListScreenState extends State<PokemonsListScreen> {
                                 String name = nameController.text;
                                 String number = numberController.text;
                                 String type = typeController.text;
+                                String rarity = rarityController.text;
                                 String avatar = avatarController.text;
                                 if (isValidName(name) ||
                                     isValidNumber(number) ||
@@ -330,10 +359,12 @@ class PokemonsListScreenState extends State<PokemonsListScreen> {
                                     },
                                   );
                                 } else {
-                                  _addPokemons(name, type, number, avatar);
+                                  _addPokemons(
+                                      name, type, number, rarity, avatar);
                                   Navigator.of(context).pop();
                                   nameController.clear();
                                   typeController.clear();
+                                  rarityController.clear();
                                   numberController.clear();
                                   avatarController.clear();
                                 }
@@ -346,7 +377,7 @@ class PokemonsListScreenState extends State<PokemonsListScreen> {
                     ))),
           );
         },
-        backgroundColor: const Color(0xFF522151),
+        backgroundColor: Color.fromARGB(255, 252, 7, 7),
         child: const Icon(Icons.add),
       ),
     );

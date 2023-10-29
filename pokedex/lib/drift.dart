@@ -9,6 +9,7 @@ class Pokemons extends Table {
   TextColumn get name => text()();
   TextColumn get type => text()();
   TextColumn get number => text()();
+  TextColumn get rarity => text()();
   TextColumn get avatar => text()();
 }
 
@@ -17,6 +18,7 @@ class Pokemon {
   final String name;
   final String type;
   final String number;
+  final String rarity;
   final String avatar;
 
   Pokemon({
@@ -24,6 +26,7 @@ class Pokemon {
     required this.name,
     required this.type,
     required this.number,
+    required this.rarity,
     required this.avatar,
   });
 }

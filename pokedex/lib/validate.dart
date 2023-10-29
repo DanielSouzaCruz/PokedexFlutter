@@ -6,7 +6,7 @@ bool isValidName(String name) {
 bool isValidNumber(String number) {
   return number.isEmpty ||
       RegExp(r'[a-z!@#\$%^&*()_+={}\[\]:;<>,.?~\\/\|°]').hasMatch(number) ||
-      number.length > 2;
+      number.length > 5;
 }
 
 bool isValidAvatar(String avatar) {

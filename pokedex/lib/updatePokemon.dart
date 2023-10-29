@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:pokedex/drift.dart';
 import 'package:pokedex/main.dart';
 import 'package:pokedex/palette.dart';
+import 'package:pokedex/rarityPokemons.dart';
 import 'package:pokedex/typePokemons.dart';
 import 'package:pokedex/validate.dart';
 
@@ -22,6 +23,7 @@ class EditPokemonScreenState extends State<EditPokemonScreen> {
   final TextEditingController numberControllerAlter = TextEditingController();
   final TextEditingController avatarControllerAlter = TextEditingController();
   final TextEditingController typeControllerAlter = TextEditingController();
+  final TextEditingController rarityControllerAlter = TextEditingController();
 
   @override
   void initState() {
@@ -31,6 +33,7 @@ class EditPokemonScreenState extends State<EditPokemonScreen> {
     numberControllerAlter.text = widget.pokemon.number;
     avatarControllerAlter.text = widget.pokemon.avatar;
     typeControllerAlter.text = widget.pokemon.type;
+    rarityControllerAlter.text = widget.pokemon.rarity;
   }
 
   String? initialCourseValue;
@@ -117,8 +120,30 @@ class EditPokemonScreenState extends State<EditPokemonScreen> {
                     child: Text(value),
                   );
                 }).toList(),
-                onChanged: (selectedCourse) {
-                  typeControllerAlter.text = selectedCourse!;
+                onChanged: (selectedType) {
+                  typeControllerAlter.text = selectedType!;
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(5),
+              child: DropdownButtonFormField<String>(
+                value: rarityControllerAlter.text,
+                decoration: InputDecoration(
+                    labelText: 'Rarity',
+                    labelStyle: const TextStyle(color: ColorPalette.textColor),
+                    enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(21),
+                        borderSide: const BorderSide(
+                            color: ColorPalette.borderColorInput, width: 2))),
+                items: rarityPokemons.map<DropdownMenuItem<String>>((value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                onChanged: (selectedRarity) {
+                  rarityControllerAlter.text = selectedRarity!;
                 },
               ),
             ),
@@ -155,6 +180,7 @@ class EditPokemonScreenState extends State<EditPokemonScreen> {
                     String alteredName = nameControllerAlter.text;
                     String alteredNumber = numberControllerAlter.text;
                     String alteredType = typeControllerAlter.text;
+                    String alteredRarity = rarityControllerAlter.text;
                     String alteredAvatar = avatarControllerAlter.text;
 
                     if (isValidName(alteredName) ||
@@ -179,11 +205,13 @@ class EditPokemonScreenState extends State<EditPokemonScreen> {
                     } else {
                       database.updatePokemons(
                         PokemonsCompanion(
-                            id: Value(id),
-                            name: Value(alteredName),
-                            number: Value(alteredNumber),
-                            avatar: Value(alteredAvatar),
-                            type: Value(alteredType)),
+                          id: Value(id),
+                          name: Value(alteredName),
+                          number: Value(alteredNumber),
+                          avatar: Value(alteredAvatar),
+                          rarity: Value(alteredRarity),
+                          type: Value(alteredType),
+                        ),
                       );
                       Navigator.pop(
                           context,
@@ -192,6 +220,7 @@ class EditPokemonScreenState extends State<EditPokemonScreen> {
                               name: alteredName,
                               number: alteredNumber,
                               avatar: alteredAvatar,
+                              rarity: alteredRarity,
                               type: alteredType));
                     }
                   },
